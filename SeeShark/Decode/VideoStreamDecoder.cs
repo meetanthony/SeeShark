@@ -19,8 +19,8 @@ namespace SeeShark.Decode;
 /// </summary>
 public unsafe class VideoStreamDecoder : Disposable
 {
-    protected readonly AVCodecContext* CodecContext;
-    protected readonly AVFormatContext* FormatContext;
+    protected AVCodecContext* CodecContext;
+    protected AVFormatContext* FormatContext;
     protected readonly Frame Frame;
     protected readonly AVPacket* Packet;
     protected readonly AVStream* Stream;
@@ -153,12 +153,17 @@ public unsafe class VideoStreamDecoder : Disposable
         // See https://github.com/vignetteapp/SeeShark/issues/27
 
         if (CodecContext != null && ffmpeg.avcodec_is_open(CodecContext) > 0)
-            ffmpeg.avcodec_close(CodecContext);
+        {
+            AVCodecContext* codecContext = CodecContext;
+            ffmpeg.avcodec_free_context(&codecContext);
+        }
 
         if (FormatContext != null && isFormatContextOpen)
         {
             AVFormatContext* formatContext = FormatContext;
             ffmpeg.avformat_close_input(&formatContext);
+            isFormatContextOpen = false;
+            FormatContext = null;
         }
 
         if (Packet != null)

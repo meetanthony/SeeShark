@@ -9,7 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using LF = SeeShark.FFmpeg.LibraryFlags;
-using LibraryLoader = FFmpeg.AutoGen.Native.LibraryLoader;
+using FFmpeg.AutoGen;
 
 namespace SeeShark.FFmpeg;
 
@@ -192,6 +192,29 @@ public static class FFmpegManager
         return true;
     }
 
+    private static string? GetNativeLibraryName(string libraryName, int version)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // ffmpeg под Windows без префикса "lib"
+            return $"{libraryName}-{version}.dll";
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Под Linux стандарт: libимя.so.версия
+            return $"lib{libraryName}.so.{version}";
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            // Под macOS: libимя.версия.dylib
+            return $"lib{libraryName}.{version}.dylib";
+        }
+
+        return null;
+    }
+
     /// <summary>
     ///     Checks if it can load a native library using platform naming conventions.
     /// </summary>
@@ -201,7 +224,9 @@ public static class FFmpegManager
     /// <returns>Whether it found the native library in the path.</returns>
     private static bool canLoadNativeLibrary(string path, string libraryName, int version)
     {
-        string nativeLibraryName = LibraryLoader.GetNativeLibraryName(libraryName, version);
+        string? nativeLibraryName = GetNativeLibraryName(libraryName, version);
+        if (nativeLibraryName == null)
+            throw new NotSupportedException("Unknown OS. Can't get native library name.");
         string fullName = Path.Combine(path, nativeLibraryName);
         bool exists = File.Exists(fullName);
         llsLog($"  {(exists ? "Found" : "Couldn't find")} library {nativeLibraryName}");

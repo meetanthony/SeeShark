@@ -662,10 +662,6 @@ public enum PixelFormat : int
     /// </summary>
     BayerGrbg16Be = AVPixelFormat.AV_PIX_FMT_BAYER_GRBG16BE,
     /// <summary>
-    /// XVideo Motion Acceleration via common packet passing
-    /// </summary>
-    Xvmc = AVPixelFormat.AV_PIX_FMT_XVMC,
-    /// <summary>
     /// planar YUV 4:4:0,20bpp, (1 Cr &#38; Cb sample per 1x2 Y samples), little-endian
     /// </summary>
     Yuv440P10Le = AVPixelFormat.AV_PIX_FMT_YUV440P10LE,
