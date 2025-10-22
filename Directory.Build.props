@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <FrameworkVersion>net8.0</FrameworkVersion>
+  </PropertyGroup>
+</Project>
